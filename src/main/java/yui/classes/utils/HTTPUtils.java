@@ -120,7 +120,7 @@ public class HTTPUtils {
    * prefixed with REQ_ and response Headers with RES_
    * Shared Headers(used in request and response)  have no prefix
    *
-   * @see http://en.wikipedia.org/wiki/List_of_HTTP_headers
+   * @see <a href="http://en.wikipedia.org/wiki/List_of_HTTP_headers">HTTP headers</a>
    */
   public enum Headers {
     REQ_ACCEPT("Accept", "*.*"), REQ_ACCEPT_CHARSET("Accept-Charset", ""), REQ_ACCEPT_ENCODING("Accept-Encoding", ""),
@@ -444,7 +444,7 @@ public class HTTPUtils {
    * TODO not finished
    * Detect Browser
    * based on YUI3 UA javascript Code.
-   * @see  http://developer.yahoo.com/yui/3/examples/yui/yui-ua.html
+   * @see <a href="http://developer.yahoo.com/yui/3/examples/yui/yui-ua.html">YUI-UA</a>
    */
   public static void detectBrowser(HttpServletRequest request) {
     // browser detection
@@ -469,7 +469,7 @@ public class HTTPUtils {
       isWebkit = true;
     }
 
-    Pattern webkit = Pattern.compile("applewebkit\\/([^\\s]*)");
+    Pattern webkit = Pattern.compile("applewebkit/([^\\s]*)");
     Matcher wm = webkit.matcher(userAgent);
 
 
@@ -492,7 +492,7 @@ public class HTTPUtils {
         }
       }
 
-      Pattern aiTest = Pattern.compile("adobeair\\/([^\\s]*)");
+      Pattern aiTest = Pattern.compile("adobeair/([^\\s]*)");
       Matcher m2 = aiTest.matcher(userAgent);
       if (m2.find(0)) {
         logger.info("Its Adobe Air");

@@ -26,101 +26,103 @@
  */
 package yui.classes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.Map;
+
 
 /**
  *
  * @author leo
  */
 public class Lissa extends YUILoader {
+  private static final Logger logger = LoggerFactory.getLogger(Lissa.class);
 
-    public final static  String   URI_TO_MIN ="/minify?";
-    public final static  String   MINIFY_BASE ="lib";
+  public static final String URI_TO_MIN = "/minify?";
+  public static final String MINIFY_BASE = "lib";
+
+  public Lissa(String yuiVersion) {
+    this(yuiVersion, "");
+  }
+
+  public Lissa(String yuiVersion, String cacheKey) {
+    this(yuiVersion, cacheKey, null);
+  }
+
+  public Lissa(String yuiVersion, String cacheKey, Map modules) {
+    this(yuiVersion, cacheKey, modules, false);
+  }
+
+  protected String minifyBasePath = null;
+
+  public Lissa(String yuiVersion, String cacheKey, Map modules, boolean noYUI) {
+    super(yuiVersion, cacheKey, modules, noYUI);
+    this.base = "/includes/js/yui/lib/" + yuiVersion + "/build/";
+    this.minifyBasePath = URI_TO_MIN + "b=" + MINIFY_BASE + "&f=";
+  }
+
+  protected String buildComboUrl(Map dependencyData, String type) {
+    String resource = "";
 
 
+    if (dependencyData.size() > 0) {
+      String comboUrl = this.minifyBasePath;
+      logger.info("comboUrl  " + comboUrl);
 
-    public Lissa(String yuiVersion) {
-        this(yuiVersion,  "");
+      Map depData = (Map) dependencyData.get(type);
+
+      Iterator it = depData.entrySet().iterator();
+      while (it.hasNext()) {
+        Map.Entry pairs = (Map.Entry) it.next();
+        String key = (String) pairs.getKey();
+        Object value = pairs.getValue();
+        comboUrl += key + ",";
+        logger.info("comboUrl Loop" + comboUrl);
+      }
+      logger.info("comboUrl Before Trim" + comboUrl);
+      comboUrl = comboUrl.substring(0, comboUrl.lastIndexOf(","));
+      logger.info("comboUrl After Trim" + comboUrl);
+
+      resource = "";
+
+
+      if (type.equalsIgnoreCase("css")) {
+        resource = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + comboUrl + " \" />";
+      } else if (type.equalsIgnoreCase("js")) {
+        resource = "<script type=\"text/javascript\" src=\"" + comboUrl + "\"></script> ";
+      }
     }
 
-    public Lissa(String yuiVersion, String cacheKey) {
-        this(yuiVersion,  cacheKey, null);
-    }
+    return resource;
 
-    public Lissa(String yuiVersion, String cacheKey, Map modules) {
-        this(yuiVersion, cacheKey, modules, false);
-    }
+  }
 
-    protected String minifyBasePath=null;
+  @Override
+  public String script() {
+    Map s = this.script_data();
+    logger.info("script Map" + s);
+    logger.info("----------------------");
+    return this.buildComboUrl(s, "js");
+  }
 
-    public Lissa(String yuiVersion,String cacheKey, Map modules, boolean noYUI) {
-        super(yuiVersion,cacheKey,modules,noYUI);
-        this.base = "/includes/js/yui/lib/"+yuiVersion+"/build/";
-      this.minifyBasePath = URI_TO_MIN+"b="+MINIFY_BASE+"&f=";
+  @Override
+  public String css() {
+    Map c = this.css_data();
 
-    }
+    logger.info("css Map" + c);
+    logger.info("----------------------");
+    return this.buildComboUrl(c, "css");
+  }
 
-    protected String buildComboUrl(Map dependencyData, String type ){
-        String resource="";
-
-
-            if(dependencyData.size() >0 ){
-                String comboUrl=this.minifyBasePath;
-                logger.info("comboUrl  "+comboUrl);
-                Map depData =(Map) dependencyData.get(type);
-
-                Iterator it = depData.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry pairs = (Map.Entry) it.next();
-                    String key = (String) pairs.getKey();
-                    Object value = pairs.getValue();
-                    comboUrl+=key+",";
-                    logger.info("comboUrl Loop"+comboUrl);
-                }
-                logger.info("comboUrl Before Trim"+comboUrl);
-                comboUrl = comboUrl.substring(0, comboUrl.lastIndexOf(","));
-                logger.info("comboUrl After Trim"+comboUrl);
-
-                resource="";
-
-
-                if(type.equalsIgnoreCase("css")){
-                    resource="<link rel=\"stylesheet\" type=\"text/css\" href=\""+ comboUrl +" \" />";
-                }else if(type.equalsIgnoreCase("js")){
-                    resource="<script type=\"text/javascript\" src=\""+ comboUrl +"\"></script> ";
-                }
-            }
-
-        return resource;
-
-    }
-
-    @Override
-    public String script() {
-       Map s = this.script_data();
-        logger.info("script Map"+s);
-        logger.info("----------------------");
-        return this.buildComboUrl(s, "js");
-    }
-
-    @Override
-    public String css() {
-        Map c= this.css_data();
-
-        logger.info("css Map"+c);
-        logger.info("----------------------");
-        return this.buildComboUrl(c, "css");
-    }
-
-    @Override
-    public String tags() {
-        String jsNode = script();
-        String cssNode = css();
-        logger.info("tags jsNode"+jsNode);
-        logger.info("----------------------");
-        logger.info("tags cssNode"+cssNode);
-        return jsNode+""+cssNode;
-    }
+  @Override
+  public String tags() {
+    String jsNode = script();
+    String cssNode = css();
+    logger.info("tags jsNode" + jsNode);
+    logger.info("----------------------");
+    logger.info("tags cssNode" + cssNode);
+    return jsNode + "" + cssNode;
+  }
 
 }

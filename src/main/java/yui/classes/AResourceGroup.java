@@ -95,8 +95,8 @@ public class AResourceGroup {
 
   private void extractmetaInfo(String item) {
     // TODO more validation and  use MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-    this.contentType = (item.indexOf(".js") != -1) ? (HTTPUtils.CONTENT_TYPE.JAVASCRIPT + "")
-                                                   : (HTTPUtils.CONTENT_TYPE.CSS + "");
+    this.contentType = item.contains(".js") ? HTTPUtils.CONTENT_TYPE.JAVASCRIPT.toString()
+                                            : HTTPUtils.CONTENT_TYPE.CSS.toString();
     this.metaInfo = item.split("/");
     logger.debug("metainfo:  " + Arrays.toString(this.getMetaInfo()));
     this.version = this.getMetaInfo()[0];
@@ -109,7 +109,7 @@ public class AResourceGroup {
       logger.error("error occured getting query String" + ex);
     }
 
-    _group = new ArrayList(request.getParameterMap().size());
+    _group = new ArrayList<String>(request.getParameterMap().size());
     for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements();) {
       // TODO grep Match on structure
       String i = e.nextElement();
@@ -163,11 +163,11 @@ public class AResourceGroup {
   }
 
   public boolean isDebug() {
-    return (getQueryString().indexOf("-debug.js") != -1);
+    return getQueryString().contains("-debug.js");
   }
 
   public boolean isMin() {
-    return (getQueryString().indexOf("-min.js") != -1);
+    return getQueryString().contains("-min.js");
   }
 
   /**

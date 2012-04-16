@@ -50,8 +50,7 @@ import yui.classes.utils.HTTPUtils;
  * Servlet related, this way it can easily
  * be used directly as API provider instead of just being a Servlet.
  *
- * @See yui.classes.servlets.ComboServlet
- *
+ * @see yui.classes.servlets.ComboServlet
  * @author leo
  */
 public class Combo {
@@ -94,8 +93,7 @@ public class Combo {
   private String alphaImageLoaderPathCorrection(Matcher matches) {
     String matchOne = matches.group(1);
     String matchedFile = matchOne.substring((matchOne.lastIndexOf("/") + 1));
-    String newPath = "AlphaImageLoader(src='" + crtResourceBase + matchedFile + "'";
-    return newPath;
+    return "AlphaImageLoader(src='" + crtResourceBase + matchedFile + "'";
   }
 
   private void init() {
@@ -105,10 +103,8 @@ public class Combo {
         cacheManager.addCache(cacheKey);
       }
 
-      HttpServletResponse res = (HttpServletResponse) response;
-
-      HTTPUtils.setCacheExpireDate(res, 315360000);
-      res.setHeader(HTTPUtils.Headers.CONTENT_TYPE + "", resourceGroup.getContentType());
+      HTTPUtils.setCacheExpireDate(response, 315360000);
+      response.setHeader(HTTPUtils.Headers.CONTENT_TYPE + "", resourceGroup.getContentType());
 
       Cache c = cacheManager.getCache(cacheKey);
       if (c.isKeyInCache(serverURI + resourceGroup.getContentType())) {
@@ -141,7 +137,7 @@ public class Combo {
         //            die('<!-- Unable to locate the YUI build directory! -->');
         //        }
         String raw = "";
-        String yuiComponent = "";
+        String yuiComponent;
         logger.debug("Iterating through yuiFiles: " + resourceGroup.getGroup());
         for (String aResource : resourceGroup.getGroup()) {
           String yuiFile = aResource;
@@ -194,7 +190,7 @@ public class Combo {
                 crtResourceContent = crtResourceContent.replaceAll("url\\(/", "url(" + crtResourceBase);
 
                 // relative paths (e.g.) url(../../foo.png)
-                crtResourceContent = crtResourceContent.replaceAll("(url\\()(\\.\\.\\/)+", "url(" + getLibPath());
+                crtResourceContent = crtResourceContent.replaceAll("(url\\()(\\.\\./)+", "url(" + getLibPath());
 
                 // AlphaImageLoader relative paths (e.g.) AlphaImageLoader(src='../../foo.png')
                 Pattern alpaImagePattern = Pattern.compile("AlphaImageLoader\\(src=['\"](.*?)['\"]");
@@ -226,7 +222,7 @@ public class Combo {
    *
    *
    *
-   * @See yui.classes.servlets.ComboServlet
+   * @see yui.classes.servlets.ComboServlet
    * @return raw (js or css)  output generated off query String on current request
    */
   public String getRaw() {
@@ -241,7 +237,7 @@ public class Combo {
 
     if (c.isKeyInCache(serverURI + resourceGroup.getContentType())) {
       logger.info("[getRaw] we found cache for " + serverURI + resourceGroup.getContentType());
-      return (String) ((Element) c.get(serverURI + resourceGroup.getContentType())).getValue();
+      return (String) (c.get(serverURI + resourceGroup.getContentType())).getValue();
     } else {
       logger.info("[getRaw] cache was not found, something is wrong" + serverURI + resourceGroup.getContentType());
       throw new RuntimeException("[getRaw] cache was not found, something is wrong" + serverURI +

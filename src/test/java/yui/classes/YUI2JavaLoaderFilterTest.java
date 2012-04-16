@@ -83,7 +83,7 @@ public class YUI2JavaLoaderFilterTest {
 
     String ret = loader.script();
 
-    Assert.assertTrue((ret.indexOf("-debug") == -1) && (ret.indexOf("-min") == -1));
+    Assert.assertTrue(!ret.contains("-debug") && !ret.contains("-min"));
   }
 
 
@@ -94,7 +94,7 @@ public class YUI2JavaLoaderFilterTest {
 
     String ret = loader.script();
 
-    Assert.assertTrue((ret.indexOf("-debug") == -1) && (ret.indexOf("-min") != -1));
+    Assert.assertTrue(!ret.contains("-debug") && (ret.contains("-min")));
     // TODO review the generated test code and remove the default call to fail.
   }
 
@@ -107,7 +107,7 @@ public class YUI2JavaLoaderFilterTest {
     // TODO review the generated test code and remove the default call to fail.
     String ret = loader.script();
 
-    Assert.assertTrue((ret.indexOf("-debug") != -1) && (ret.indexOf("-min") == -1));
+    Assert.assertTrue(ret.contains("-debug") && !ret.contains("-min"));
 
   }
 

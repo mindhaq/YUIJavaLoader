@@ -61,7 +61,7 @@ import yui.classes.utils.IOUtils;
  * depends on are included as well.  By default, the YUI Library is configured, and
  * other modules and their dependencies can be added.
  *
- * @see http://developer.yahoo.com/yui/phploader/
+ * @see <a href="http://developer.yahoo.com/yui/phploader/">PHPLoader</a>
  * @author leo
  */
 public class YUILoader {
@@ -115,7 +115,7 @@ public class YUILoader {
     }
 
     public boolean isJSONType() {
-      return ((this.toString().indexOf("JSON") != -1) || this.equals(YUI_DATA));
+      return this.toString().contains("JSON") || this.equals(YUI_DATA);
     }
   }
 
@@ -257,7 +257,7 @@ public class YUILoader {
 
   /**
    * Number modules that were requested that are not defined
-   * @return
+   * @returns
    */
   public int howManyUndefined() {
     return undefined.size();
@@ -291,7 +291,7 @@ public class YUILoader {
   /**
    * Contains the available module metadata
    */
-  private Map modules = new HashMap();
+  private Map<String, Object> modules = new HashMap<String, Object>();
 
   /**
    * cache key (currently ehcache only)
@@ -312,9 +312,6 @@ public class YUILoader {
   /* If the version is set, a querystring parameter is appended to the
    * end of all generated URLs.  This is a cache busting hack for environments
    * that always use the same path for the current version of the library.
-   * @property version
-   * @type string
-   * @default null
    */
   private String yuiVersion = "";
   private String versionKey = "_yuiversion";
@@ -358,9 +355,6 @@ public class YUILoader {
    * The base path to the combo service.  Uses the Yahoo! CDN service by default.
    * You do not have to set this property to use the combine option. YUI PHP Loader ships
    * with an intrinsic, lightweight combo-handler as well (see combo.php).
-   * @property comboBase
-   * @type string
-   * @default http://yui.yahooapis.com/combo?
    */
   public String comboBase = "http://yui.yahooapis.com/combo?";
 
@@ -414,10 +408,10 @@ public class YUILoader {
 
     this.yuiVersion = version;
     this.userSuppliedModules = modules;
-    this.customModulesInUse = ((modules != null) && (modules.size() > 0)) ? true : false;
+    this.customModulesInUse = (modules != null) && (modules.size() > 0);
     this._noYUI = noYUI;
     this._jsonConfigFile = "json_" + this.yuiVersion + ".txt";
-    this.isCacheEnabled = (cacheKey != null) ? true : false;
+    this.isCacheEnabled = cacheKey != null;
     this.comboDefaultVersion = this.yuiVersion;
     this.parser = new JSONParser();
     this.yui_current = this.loadCachedJSONConfObject(_jsonConfigFile);
@@ -434,7 +428,7 @@ public class YUILoader {
 
   private JSONObject loadCachedJSONConfObject(String configFileName) {
     // TODO cache yui_current ? to save parse time.
-    JSONObject obj = null;
+    JSONObject obj;
     logger.debug("[loadCachedJSONConfObject] ... ");
     if (isCacheEnabled) {
       logger.debug("[loadCachedJSONConfObject] Cache is Enabled ... ");
@@ -460,7 +454,7 @@ public class YUILoader {
 
   private JSONObject _loadJSONConfObject(String configFile) {
     InputStream in = IOUtils.loadResource(configFile);
-    Object obj = null;
+    Object obj;
     if (in == null) {
       throw new RuntimeException("suitable YUI metadata file: [" + this._jsonConfigFile +
         "]  Could not be found or Loaded");
@@ -522,7 +516,7 @@ public class YUILoader {
   }
 
   private JSONParser parser;
-  int recoveryCounter = 0;
+  private int recoveryCounter;
 
   private Cache initCache(String key) {
     key = key.replace("/", "_");
@@ -543,8 +537,7 @@ public class YUILoader {
       logger.debug("[initCache] Cache found for: " + key);
     }
 
-    Cache cache = cacheManager.getCache(key);
-    return cache;
+    return cacheManager.getCache(key);
   }
 
   private void init() {
@@ -749,9 +742,8 @@ public class YUILoader {
 
   /**
    * Sets up skin for skinnable modules
-   * @method skinSetup
-   * @param string $name module name
-   * @return {string}
+   * @param name module name
+   * @returns
    */
   private String skinSetup(String name) {
     String skinName = null;
@@ -905,7 +897,6 @@ public class YUILoader {
   /**
    * Used to output each of the required html tags (i.e.) script or link
    * defaults to both css and js tags.
-   * @param skipSort turn off sorting.
    * @return String representation of  tags (script or link)
    */
   public String tags() {
