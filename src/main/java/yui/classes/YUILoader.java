@@ -65,7 +65,7 @@ import yui.classes.utils.IOUtils;
  * @author leo
  */
 public class YUILoader {
-  Logger logger = LoggerFactory.getLogger(YUILoader.class);
+  private static final Logger logger = LoggerFactory.getLogger(YUILoader.class);
   public boolean cacheBuster = true;
 
   /**

@@ -12,7 +12,7 @@
  *      * Neither the name of the Amostudio,inc  nor the
  *        names of its contributors may be used to endorse or promote products
  *        derived from this software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY Amostudio,inc ''AS IS'' AND ANY
  *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,75 +36,79 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  *
  * @author leo
  */
 public class YUI2JavaLoaderFilterTest {
-    YUILoader loader;
-    String yuiVersion;
-    Logger logger = LoggerFactory.getLogger(YUI2JavaLoaderFilterTest.class);
+  YUILoader loader;
+  String yuiVersion;
+  private static final Logger logger = LoggerFactory.getLogger(YUI2JavaLoaderFilterTest.class);
 
-    public YUI2JavaLoaderFilterTest() {
+  public YUI2JavaLoaderFilterTest() {
+  }
+
+  @BeforeClass
+  public static void setUpClass() throws Exception {
+  }
+
+  @AfterClass
+  public static void tearDownClass() throws Exception {
+  }
+
+  @Before
+  public void setUp() {
+    yuiVersion = System.getProperty("yui.version.2x");
+    if (yuiVersion == null) {
+      yuiVersion = "2.7.0";
     }
+    logger.info("[YUIJavaLoaderFilterTest] yuiversion is:" + yuiVersion);
+    loader = new YUILoader(yuiVersion);
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
+    logger.info("Creating YUILoader loader");
+  }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-        yuiVersion = System.getProperty("yui.version.2x");
-        if(yuiVersion==null)yuiVersion="2.7.0";
-        logger.info("[YUIJavaLoaderFilterTest] yuiversion is:"+yuiVersion);
-        loader = new YUILoader(yuiVersion);
-
-        logger.info("Creating YUILoader loader");
-    }
-
-    @After
-    public void tearDown() {
-    }
+  @After
+  public void tearDown() {
+  }
 
 
+  @Test
+  public void testRaw() {
+    loader.filter = YUILoader.YUI_RAW;
+    loader.load("yahoo", "dom", "calendar", "event", "tabview", "grids", "fonts", "reset", "logger");
 
-      @Test
-    public void testRaw() {
-        loader.filter = YUILoader.YUI_RAW;
-        loader.load("yahoo", "dom","calendar", "event", "tabview", "grids", "fonts", "reset","logger");
+    // TODO review the generated test code and remove the default call to fail.
 
-        // TODO review the generated test code and remove the default call to fail.
+    String ret = loader.script();
 
-        String ret = loader.script();
-
-        Assert.assertTrue(ret.indexOf("-debug")==-1 && ret.indexOf("-min")==-1);
-    }
-
-
-     @Test
-    public void testMin() {
-        loader.filter = "";//min
-        loader.load("yahoo", "dom","calendar", "event", "tabview", "grids", "fonts", "reset","logger");
-        String ret = loader.script();
-
-        Assert.assertTrue(ret.indexOf("-debug")==-1 && ret.indexOf("-min")!=-1);
-        // TODO review the generated test code and remove the default call to fail.
-    }
+    Assert.assertTrue((ret.indexOf("-debug") == -1) && (ret.indexOf("-min") == -1));
+  }
 
 
-      @Test
-    public void testDebug() {
-        loader.filter = YUILoader.YUI_DEBUG;
-        loader.load("yahoo", "dom","calendar", "event", "tabview", "grids", "fonts", "reset","logger");
-        // TODO review the generated test code and remove the default call to fail.
-        String ret = loader.script();
-        
-        Assert.assertTrue(ret.indexOf("-debug")!=-1 && ret.indexOf("-min")==-1);
+  @Test
+  public void testMin() {
+    loader.filter = ""; //min
+    loader.load("yahoo", "dom", "calendar", "event", "tabview", "grids", "fonts", "reset", "logger");
 
-    }
+    String ret = loader.script();
+
+    Assert.assertTrue((ret.indexOf("-debug") == -1) && (ret.indexOf("-min") != -1));
+    // TODO review the generated test code and remove the default call to fail.
+  }
+
+
+  @Test
+  public void testDebug() {
+    loader.filter = YUILoader.YUI_DEBUG;
+    loader.load("yahoo", "dom", "calendar", "event", "tabview", "grids", "fonts", "reset", "logger");
+
+    // TODO review the generated test code and remove the default call to fail.
+    String ret = loader.script();
+
+    Assert.assertTrue((ret.indexOf("-debug") != -1) && (ret.indexOf("-min") == -1));
+
+  }
 
 }

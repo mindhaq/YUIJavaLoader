@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import yui.classes.utils.HTTPUtils;
 
+
 /**
  * Resource Group represents an Entity that groups two or more resources under
  * common Name, currently common name is QueryString but it will change.
@@ -58,158 +59,159 @@ import yui.classes.utils.HTTPUtils;
  * @author leo
  */
 public class AResourceGroup {
+  private static final Logger logger = LoggerFactory.getLogger(AResourceGroup.class);
+  private List<String> _group;
+  private String[] metaInfo;
+  private String version;
+  private String filterType;
 
-    Logger logger = LoggerFactory.getLogger(AResourceGroup.class);
-    private List<String> _group;
-    private String[] metaInfo;
-    private String version;
-    private String filterType;
-    //TODO  should be ENUM
-    private String contentType;
+  //TODO  should be ENUM
+  private String contentType;
 
-    // depricate this
-    private String queryString = "";
+  // depricate this
+  private String queryString = "";
 
-    private String splitDelimeter;
+  private String splitDelimeter;
 
-    public AResourceGroup(String queryString) {
-        this(queryString,"&");
+  public AResourceGroup(String queryString) {
+    this(queryString, "&");
+  }
+
+  public AResourceGroup(String queryString, String delimeter) {
+    this.splitDelimeter = delimeter;
+    parseUrl(queryString);
+  }
+
+  public AResourceGroup(HttpServletRequest request) {
+    parseRequest(request);
+  }
+
+  AResourceGroup(String queryStringIdentifier, List<String> items) {
+    //parseRequest(request);
+    this.queryString = queryStringIdentifier;
+    this._group = items;
+    extractmetaInfo(_group.get(0));
+  }
+
+  private void extractmetaInfo(String item) {
+    // TODO more validation and  use MimetypesFileTypeMap map = new MimetypesFileTypeMap();
+    this.contentType = (item.indexOf(".js") != -1) ? (HTTPUtils.CONTENT_TYPE.JAVASCRIPT + "")
+                                                   : (HTTPUtils.CONTENT_TYPE.CSS + "");
+    this.metaInfo = item.split("/");
+    logger.debug("metainfo:  " + Arrays.toString(this.getMetaInfo()));
+    this.version = this.getMetaInfo()[0];
+  }
+
+  private void parseRequest(HttpServletRequest request) {
+    try {
+      queryString = URLDecoder.decode(request.getQueryString(), "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+      logger.error("error occured getting query String" + ex);
     }
 
-   public AResourceGroup(String queryString,String delimeter) {
-       this.splitDelimeter = delimeter;
-        parseUrl(queryString);
+    _group = new ArrayList(request.getParameterMap().size());
+    for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements();) {
+      // TODO grep Match on structure
+      String i = e.nextElement();
+      logger.debug("Adding Item: " + i);
+      _group.add(i);
     }
 
-   public AResourceGroup(HttpServletRequest request) {
-        parseRequest(request);
-    }
+    extractmetaInfo(_group.get(0));
 
-   AResourceGroup(String queryStringIdentifier, List<String> items) {
-        //parseRequest(request);
-        this.queryString = queryStringIdentifier;
-        this._group = items;
-        extractmetaInfo(_group.get(0));
-    }
+    //        Map m = request.getParameterMap();
+    //
+    //         for (Iterator it = m.entrySet().iterator(); it.hasNext();) {
+    //                 Map.Entry pairs = (Map.Entry) it.next();
+    //                 String name = (String) pairs.getKey();
+    //                 String[] value = (String[]) pairs.getValue();
+    //                     logger.debug("name: " + name+" value "+Arrays.toString(value));
+    //         }
 
-    private void extractmetaInfo(String item) {
-        // TODO more validation and  use MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-        this.contentType = (item.indexOf(".js") != -1) ? HTTPUtils.CONTENT_TYPE.JAVASCRIPT + "" : HTTPUtils.CONTENT_TYPE.CSS + "";
-        this.metaInfo = item.split("/");
-        logger.debug("metainfo:  " + Arrays.toString(this.getMetaInfo()));
-        this.version = this.getMetaInfo()[0];
-    }
+  }
 
-    private void parseRequest(HttpServletRequest request) {
-        try {
-            queryString = URLDecoder.decode(request.getQueryString(), "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            logger.error("error occured getting query String" + ex);
+  //delimeter defaults to &
+  private void parseUrl(String _q) {
+    String[] yuiFiles = null;
+
+    try {
+      if ((_q != null) && !_q.trim().equals("")) {
+        queryString = URLDecoder.decode(_q, "UTF-8");
+      }
+
+      logger.debug("queryStringis " + getQueryString());
+
+      if (!queryString.equals("")) {
+        yuiFiles = getQueryString().split("[" + this.splitDelimeter + "]");
+        if ((yuiFiles == null) || (yuiFiles.length == 0)) {
+          logger.debug("thre is nothing in query?" + getQueryString());
+          return;
         }
 
-        _group = new ArrayList(request.getParameterMap().size());
-        for (Enumeration<String> e = request.getParameterNames(); e.hasMoreElements();) {
-            // TODO grep Match on structure
-            String i = e.nextElement();
-            logger.debug("Adding Item: " + i);
-            _group.add(i);
-        }
+        extractmetaInfo(yuiFiles[0]);
+        _group = Arrays.asList(yuiFiles);
+      }
 
-        extractmetaInfo(_group.get(0));
-
-//        Map m = request.getParameterMap();
-//
-//         for (Iterator it = m.entrySet().iterator(); it.hasNext();) {
-//                 Map.Entry pairs = (Map.Entry) it.next();
-//                 String name = (String) pairs.getKey();
-//                 String[] value = (String[]) pairs.getValue();
-//                     logger.debug("name: " + name+" value "+Arrays.toString(value));
-//         }
-
+    } catch (UnsupportedEncodingException ex) {
+      logger.error(ex.getMessage());
+      ex.printStackTrace();
     }
 
-    //delimeter defaults to &
-    private void parseUrl(String _q) {
-        String[] yuiFiles = null;
+  }
 
-        try {
-            if (_q != null && !_q.trim().equals("")) {
-                queryString = URLDecoder.decode(_q, "UTF-8");
-            }
+  AResourceGroup(Enumeration<String> params) {
+  }
 
-            logger.debug("queryStringis " + getQueryString());
+  public boolean isDebug() {
+    return (getQueryString().indexOf("-debug.js") != -1);
+  }
 
-            if (!queryString.equals("")) {
-                yuiFiles = getQueryString().split("["+this.splitDelimeter+"]");
-                if (yuiFiles == null || yuiFiles.length == 0) {
-                    logger.debug("thre is nothing in query?" + getQueryString());
-                    return;
-                }
+  public boolean isMin() {
+    return (getQueryString().indexOf("-min.js") != -1);
+  }
 
-                extractmetaInfo(yuiFiles[0]);
-                _group = Arrays.asList(yuiFiles);
-            }
+  /**
+   * group of resources (their names) that are part of this class
+   * @return the _group
+   */
+  public List<String> getGroup() {
+    return _group;
+  }
 
-        } catch (UnsupportedEncodingException ex) {
-            logger.error(ex.getMessage());
-            ex.printStackTrace();
-        }
+  /**
+   * meta informtion of resource, which is :
+   * version, type debug, raw,min  etc ...
+   * @return the metaInfo
+   */
+  public String[] getMetaInfo() {
+    return metaInfo;
+  }
 
-    }
+  /**
+   * @return the version
+   */
+  public String getVersion() {
+    return version;
+  }
 
-    AResourceGroup(Enumeration<String> params) {
-    }
+  /**
+   * @return the filterType
+   */
+  public String getFilterType() {
+    return filterType;
+  }
 
-    public boolean isDebug() {
-        return (getQueryString().indexOf("-debug.js") != -1);
-    }
+  /**
+   * @return the contentType
+   */
+  public String getContentType() {
+    return contentType;
+  }
 
-    public boolean isMin() {
-        return (getQueryString().indexOf("-min.js") != -1);
-    }
-
-    /**
-     * group of resources (their names) that are part of this class
-     * @return the _group
-     */
-    public List<String> getGroup() {
-        return _group;
-    }
-
-    /**
-     * meta informtion of resource, which is :
-     * version, type debug, raw,min  etc ...
-     * @return the metaInfo
-     */
-    public String[] getMetaInfo() {
-        return metaInfo;
-    }
-
-    /**
-     * @return the version
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * @return the filterType
-     */
-    public String getFilterType() {
-        return filterType;
-    }
-
-    /**
-     * @return the contentType
-     */
-    public String getContentType() {
-        return contentType;
-    }
-
-    /**
-     * @return the queryString
-     */
-    public String getQueryString() {
-        return queryString;
-    }
+  /**
+   * @return the queryString
+   */
+  public String getQueryString() {
+    return queryString;
+  }
 }

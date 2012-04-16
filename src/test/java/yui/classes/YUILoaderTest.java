@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
 public class YUILoaderTest {
   YUILoader loader;
   String yuiVersion;
-  Logger logger = LoggerFactory.getLogger(YUILoaderTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(YUILoaderTest.class);
 
   public YUILoaderTest() {
   }

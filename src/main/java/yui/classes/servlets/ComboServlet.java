@@ -43,7 +43,7 @@ import yui.classes.Combo;
  * @author leo
  */
 public class ComboServlet extends HttpServlet {
-  Logger logger = LoggerFactory.getLogger(ComboServlet.class);
+  private static final Logger logger = LoggerFactory.getLogger(ComboServlet.class);
 
   @Override
   public void init(ServletConfig config) throws ServletException {
