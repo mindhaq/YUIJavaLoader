@@ -48,6 +48,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import yui.classes.conf.ModuleType;
 import yui.classes.utils.HTTPUtils;
 import yui.classes.utils.IOUtils;
 
@@ -116,31 +117,6 @@ public class YUILoader {
 
     public boolean isJSONType() {
       return this.toString().contains("JSON") || this.equals(YUI_DATA);
-    }
-  }
-
-  /**
-   * MODULE_TYPE enum that specifies all possible
-   * module types supported
-   * currently only css and js
-   */
-  public enum MODULE_TYPE {
-    ALL("ALL"), CSS("css"), JS("js");
-
-    MODULE_TYPE(String _name) {
-      this.name = _name;
-    }
-
-    private String name;
-
-    @Override
-    public String toString() {
-      return name;
-    }
-
-    public static MODULE_TYPE getValue(String value) {
-      return valueOf(value.trim().toUpperCase());
-
     }
   }
 
@@ -663,14 +639,14 @@ public class YUILoader {
    * this method defaults to MODULE_TYPE.ALL
    */
   private void setProcessedModuleType() {
-    this.setProcessedModuleType(MODULE_TYPE.ALL);
+    this.setProcessedModuleType(ModuleType.all);
   }
 
   /**
    * Used to mark a module type as processed
    * @param moduleType
    */
-  private void setProcessedModuleType(MODULE_TYPE moduleType) {
+  private void setProcessedModuleType(ModuleType moduleType) {
     this.processedModuleTypes.put(moduleType + "", true);
   }
 
@@ -679,14 +655,14 @@ public class YUILoader {
    * this method defaults to: MODULE_TYPE.ALL
    */
   private boolean hasProcessedModuleType() {
-    return hasProcessedModuleType(MODULE_TYPE.ALL);
+    return hasProcessedModuleType(ModuleType.all);
   }
 
   /**
    * Used to determine if a module type has been processed
    * @param moduleType
    */
-  private boolean hasProcessedModuleType(MODULE_TYPE moduleType) {
+  private boolean hasProcessedModuleType(ModuleType moduleType) {
     return this.processedModuleTypes.containsKey(moduleType + "");
   }
 
@@ -717,7 +693,7 @@ public class YUILoader {
         String forEnum = (String) ((Map) mod).get(YUI_TYPE);
         logger.info("Found EnumString module type: " + forEnum);
 
-        this.setProcessedModuleType(MODULE_TYPE.getValue(forEnum));
+        this.setProcessedModuleType(ModuleType.valueOf(forEnum));
 
       } else {
         logger.debug("YUI_LOADER: undefined module name provided to setLoaded(): " + arg);
@@ -793,7 +769,7 @@ public class YUILoader {
 
         Map skinMap = new HashMap();
         skinMap.put("name", skinName);
-        skinMap.put("type", MODULE_TYPE.CSS + "");
+        skinMap.put("type", ModuleType.css + "");
         skinMap.put("path", path);
         skinMap.put("after", s.get(YUI_AFTER));
         this.modules.put(skinName, skinMap);
@@ -801,7 +777,7 @@ public class YUILoader {
         String path = s.get(YUI_BASE) + _skin[1] + "/" + s.get(YUI_PATH);
         Map skinMap = new HashMap();
         skinMap.put("name", skinName);
-        skinMap.put("type", MODULE_TYPE.CSS + "");
+        skinMap.put("type", ModuleType.css + "");
         skinMap.put("path", path);
         skinMap.put("rollup", 3);
         skinMap.put("after", s.get(YUI_AFTER));
@@ -871,7 +847,7 @@ public class YUILoader {
    * @return String representation of script tags
    */
   public String script() {
-    return this.tags(MODULE_TYPE.JS, false);
+    return this.tags(ModuleType.js, false);
 
 
   }
@@ -881,16 +857,16 @@ public class YUILoader {
    *  @return String representation of link(css) tags
    */
   public String css() {
-    return this.tags(MODULE_TYPE.CSS, false);
+    return this.tags(ModuleType.css, false);
   }
 
   /**
    * Used to output each of the required html tags (i.e.) script or link
    * @param moduleType Type of html tag to return (i.e.) js or css.  Default is both.
    * @param skipSort turn off sorting.
-   * @return String representation of  tags (script or link)
+   * @returns String representation of  tags (script or link)
    */
-  public String tags(MODULE_TYPE moduleType, boolean skipSort) {
+  public String tags(ModuleType moduleType, boolean skipSort) {
     return (String) this.processDependencies(OUTPUT_TYPE.YUI_TAGS, moduleType, skipSort, false);
   }
 
@@ -910,7 +886,7 @@ public class YUILoader {
    * @return Returns the script tag(s) with the JavaScript inline
    */
   public String script_embed() {
-    return this.embed(MODULE_TYPE.JS, false);
+    return this.embed(ModuleType.js, false);
   }
 
   /**
@@ -918,7 +894,7 @@ public class YUILoader {
    * @return  (e.g.) Returns the style tag(s) with the CSS inline
    */
   public String css_embed() {
-    return this.embed(MODULE_TYPE.CSS, false);
+    return this.embed(ModuleType.css, false);
   }
 
   /**
@@ -927,7 +903,7 @@ public class YUILoader {
    * @param skipSort
    * @return Returns the style tag(s) with the CSS inline and/or the script tag(s) with the JavaScript inline
    */
-  public String embed(MODULE_TYPE moduleType, boolean skipSort) {
+  public String embed(ModuleType moduleType, boolean skipSort) {
     return (String) this.processDependencies(OUTPUT_TYPE.YUI_EMBED, moduleType, skipSort, false);
   }
 
@@ -936,7 +912,7 @@ public class YUILoader {
    * @return Returns Map of data about each of the identified JavaScript components
    */
   public Map script_data() {
-    return this.data(MODULE_TYPE.JS, false, false);
+    return this.data(ModuleType.js, false, false);
   }
 
   /**
@@ -944,7 +920,7 @@ public class YUILoader {
    * @return Returns Map of data about each of the identified JavaScript components
    */
   public Map css_data() {
-    return this.data(MODULE_TYPE.CSS, false, false);
+    return this.data(ModuleType.css, false, false);
   }
 
   /**
@@ -955,7 +931,7 @@ public class YUILoader {
    * @param skipSort
    * @return Returns Map of data about each of the identified  components
    */
-  public Map data(MODULE_TYPE moduleType, boolean allowRollups, boolean skipSort) {
+  public Map data(ModuleType moduleType, boolean allowRollups, boolean skipSort) {
     if (allowRollups) {
       this.setProcessedModuleType(moduleType);
     }
@@ -989,7 +965,7 @@ public class YUILoader {
    * @return Returns a JSON String containing urls for each JavaScript component
    */
   public String script_json() {
-    Map json = (Map) this.json(MODULE_TYPE.CSS, false, false, false);
+    Map json = (Map) this.json(ModuleType.css, false, false, false);
     return JSONValue.toJSONString(json);
   }
 
@@ -998,7 +974,7 @@ public class YUILoader {
    * @return Returns a JSON String containing urls for each JavaScript component
    */
   public String css_json() {
-    Map json = this.json(MODULE_TYPE.CSS, false, false, false);
+    Map json = this.json(ModuleType.css, false, false, false);
     return JSONValue.toJSONString(json);
   }
 
@@ -1010,7 +986,7 @@ public class YUILoader {
    * @param full
    * @return Returns a JSON Map with the required JavaScript and CSS components
    */
-  public Map json(MODULE_TYPE moduleType, boolean allowRollups, boolean skipSort, boolean full) {
+  public Map json(ModuleType moduleType, boolean allowRollups, boolean skipSort, boolean full) {
     if (allowRollups) {
       this.setProcessedModuleType(moduleType);
     }
@@ -1031,7 +1007,7 @@ public class YUILoader {
   * @return Returns the raw JavaScript code inline without the actual script tags
   */
   public String script_raw() {
-    return this.raw(MODULE_TYPE.JS, false, false);
+    return this.raw(ModuleType.js, false, false);
   }
 
   /**
@@ -1039,7 +1015,7 @@ public class YUILoader {
   * @return Returns the raw CSS code inline without the actual style tags
   */
   public String css_raw() {
-    return this.raw(MODULE_TYPE.CSS, false, false);
+    return this.raw(ModuleType.css, false, false);
   }
 
   /**
@@ -1049,7 +1025,7 @@ public class YUILoader {
    * @param skipSort
    * @return Returns the raw JavaScript and/or CSS code inline without the actual style tags
    */
-  public String raw(MODULE_TYPE moduleType, boolean allowRollups, boolean skipSort) {
+  public String raw(ModuleType moduleType, boolean allowRollups, boolean skipSort) {
     return (String) this.processDependencies(OUTPUT_TYPE.YUI_RAW, moduleType, skipSort, false);
   }
 
@@ -1068,7 +1044,7 @@ public class YUILoader {
   }
 
   //Used during dependecy processing to prune modules from the list of modules requiring further processing
-  private Map prune(Map deps, MODULE_TYPE moduleType) {
+  private Map prune(Map deps, ModuleType moduleType) {
     if (moduleType != null) {
       Map newdeps = new LinkedHashMap();
       for (String name : (Set<String>) deps.keySet()) {
@@ -1260,7 +1236,7 @@ public class YUILoader {
   }
 
   // @todo restore global dependency support
-  private List getGlobalDependencies(MODULE_TYPE moduleType) {
+  private List getGlobalDependencies(ModuleType moduleType) {
     // TODO parameter not used
     return this.globalModules;
   }
@@ -1338,7 +1314,7 @@ public class YUILoader {
     return false;
   }
 
-  private void sortDependencies_fillRequests(MODULE_TYPE moduleType, Map reqs) {
+  private void sortDependencies_fillRequests(ModuleType moduleType, Map reqs) {
     // add global dependenices so they are included when calculating rollups
     List globals = this.getGlobalDependencies(moduleType);
 
@@ -1379,7 +1355,7 @@ public class YUILoader {
   }
   // TODO optimize, currently we just porting one2one
 
-  private Map sortDependencies(MODULE_TYPE moduleType, boolean skipSort) {
+  private Map sortDependencies(ModuleType moduleType, boolean skipSort) {
     // only call this if the loader is dirty
 
     Map reqs = new LinkedHashMap();
@@ -1605,7 +1581,7 @@ newreqs:
   }
 
   // TODO refactor into this
-  private String processDependenciesAsString(OUTPUT_TYPE outputType, MODULE_TYPE moduleType, boolean skipSort,
+  private String processDependenciesAsString(OUTPUT_TYPE outputType, ModuleType moduleType, boolean skipSort,
                                              boolean showLoaded) {
     if ((outputType == null) || (outputType.isJSONType())) {
       throw new RuntimeException(
@@ -1637,7 +1613,7 @@ newreqs:
         String modTypeString = (String) dep.get(YUI_TYPE);
         switch (outputType) {
           case YUI_EMBED: {
-            html.append(this.getContent(name, MODULE_TYPE.getValue(modTypeString)));
+            html.append(this.getContent(name, ModuleType.valueOf(modTypeString)));
             break;
           }
 
@@ -1649,12 +1625,12 @@ newreqs:
           case YUI_TAGS:
           default: {
             if ((this.combine == true) && !this.customModulesInUse) {
-              this.addToCombo(name, MODULE_TYPE.getValue(modTypeString));
+              this.addToCombo(name, ModuleType.valueOf(modTypeString));
               html = new StringBuffer();
-              html.append(this.getComboLink(MODULE_TYPE.getValue(modTypeString)));
+              html.append(this.getComboLink(ModuleType.valueOf(modTypeString)));
               //logger.info("combo html"+html.toString());
             } else {
-              html.append(this.getLink(name, MODULE_TYPE.getValue(modTypeString)));
+              html.append(this.getLink(name, ModuleType.valueOf(modTypeString)));
               html.append("\n");
             }
             break;
@@ -1692,7 +1668,7 @@ newreqs:
   }
 
   // TODO refactor into this
-  private Map processDependenciesAsJSON(OUTPUT_TYPE outputType, MODULE_TYPE moduleType, boolean skipSort,
+  private Map processDependenciesAsJSON(OUTPUT_TYPE outputType, ModuleType moduleType, boolean skipSort,
                                         boolean showLoaded) {
     if ((outputType == null) || (!outputType.isJSONType())) {
       throw new RuntimeException(" outputType can not be Null or non JSON type: " + outputType);
@@ -1784,15 +1760,15 @@ newreqs:
     return json;
   }
 
-  private Object processDependencies(OUTPUT_TYPE outputType, MODULE_TYPE moduleType, boolean skipSort,
+  private Object processDependencies(OUTPUT_TYPE outputType, ModuleType moduleType, boolean skipSort,
                                      boolean showLoaded) {
     if (outputType == null) {
       throw new RuntimeException(" outputType can not be " + outputType);
     }
 
     if ((moduleType == null) && (!outputType.isJSONType())) {
-      String css = (String) processDependenciesAsString(outputType, MODULE_TYPE.CSS, skipSort, showLoaded);
-      String js = (String) processDependenciesAsString(outputType, MODULE_TYPE.JS, skipSort, showLoaded);
+      String css = (String) processDependenciesAsString(outputType, ModuleType.css, skipSort, showLoaded);
+      String js = (String) processDependenciesAsString(outputType, ModuleType.js, skipSort, showLoaded);
       logger.debug("CSS dependencies are :" + css);
       logger.debug("JS dependencies are :" + js);
       this.updateCache();
@@ -1946,14 +1922,14 @@ newreqs:
    * @method clearComboLink
    * @param {string} type Resource type (i.e.) YUI_JS or YUI_CSS
    */
-  private void clearComboLink(MODULE_TYPE type) {
+  private void clearComboLink(ModuleType type) {
     switch (type) {
-      case CSS: {
+      case css: {
         this.cssComboLocation = null;
         break;
       }
 
-      case JS: {
+      case js: {
         this.jsComboLocation = null;
         break;
       }
@@ -2058,11 +2034,11 @@ newreqs:
     return url;
   }
 
-  public String getComboLink(MODULE_TYPE type) {
+  public String getComboLink(ModuleType type) {
     String url = "";
 
     switch (type) {
-      case CSS: {
+      case css: {
         if (this.cssComboLocation != null) {
           url = "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + this.cssComboLocation + "\" />";
         } else {
@@ -2071,7 +2047,7 @@ newreqs:
         break;
       }
 
-      case JS: {
+      case js: {
         if (this.jsComboLocation != null) {
           if (this.cssComboLocation != null) {
             url = "\n";
@@ -2101,12 +2077,12 @@ newreqs:
 
   public String ComboDelimeter = "&";
 
-  public void addToCombo(String name, MODULE_TYPE type) {
+  public void addToCombo(String name, ModuleType type) {
     Map m = (Map) this.modules.get(name);
     String pathToModule = this.comboDefaultVersion + "/build/" + m.get(YUI_PATH);
 
 
-    if (type.equals(MODULE_TYPE.CSS)) {
+    if (type.equals(ModuleType.css)) {
       //If this is the first css component then add the combo base path
       if (this.cssComboLocation == null) {
         this.cssComboLocation = this.comboBase + pathToModule;
@@ -2126,12 +2102,12 @@ newreqs:
     }
   }
 
-  public String getLink(String name, MODULE_TYPE type) {
+  public String getLink(String name, ModuleType type) {
     String url = this.getUrl(name);
 
     if (url == null) {
       return "<!-- PATH FOR " + name + " NOT SPECIFIED -->";
-    } else if (type.equals(MODULE_TYPE.CSS)) {
+    } else if (type.equals(ModuleType.css)) {
       return "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + url + "\"  />";
     } else {
       return "<script type=\"text/javascript\" src=\"" + url + "\" ></script>";
@@ -2144,11 +2120,11 @@ newreqs:
       //$url = $this->getUrl($name);
   }
 
-  private String getContent(String name, MODULE_TYPE type) {
+  private String getContent(String name, ModuleType type) {
     String url = this.getUrl(name);
     if (url == null) {
       return "<!-- PATH FOR " + name + " NOT SPECIFIED -->";
-    } else if (type.equals(MODULE_TYPE.CSS)) {
+    } else if (type.equals(ModuleType.css)) {
       return "<style type=\"text/css\">" + this.getRemoteContent(url) + "</style>";
     } else {
       return "<script type=\"text/javascript\">" + this.getRemoteContent(url) + "</script>";
