@@ -6,5 +6,5 @@ package yui.classes.conf;
  * currently only css and js
  */
 public enum ModuleType {
-  all, css, js;
+  all, css, js
 }

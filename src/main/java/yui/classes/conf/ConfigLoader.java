@@ -7,6 +7,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 
 
@@ -25,12 +28,16 @@ public class ConfigLoader {
     return gson.fromJson(json, Module.class);
   }
 
-  private class ModuleTypeAdapter implements JsonDeserializer<ModuleType> {
+  private class ModuleTypeAdapter implements JsonDeserializer<ModuleType>, JsonSerializer<ModuleType> {
     @Override
     public ModuleType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                            throws JsonParseException {
-      ModuleType ret = ModuleType.valueOf(json.getAsString());
-      return ret;
+      return ModuleType.valueOf(json.getAsString());
+    }
+
+    @Override
+    public JsonElement serialize(ModuleType src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.name());
     }
   }
 }
