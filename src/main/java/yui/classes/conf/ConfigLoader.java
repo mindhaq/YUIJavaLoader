@@ -11,6 +11,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 
 public class ConfigLoader {
@@ -40,4 +41,5 @@ public class ConfigLoader {
       return new JsonPrimitive(src.name());
     }
   }
+
 }

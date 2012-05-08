@@ -1,19 +1,49 @@
 package yui.classes.conf;
 
+import static yui.classes.conf.Condition.When.after;
+
 public class Condition {
-  public final String name;
+  private String name;
 
-  public final String trigger;
+  private String trigger;
+  
+  private String ua;
 
-  public final String userAgent;
+  private When when;
 
-  public Condition(String name, String trigger) {
-    this(name, trigger, null);
+  public enum When {
+    after, before, instead
   }
 
-  public Condition(String name, String trigger, String userAgent) {
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
     this.name = name;
+  }
+
+  public String getTrigger() {
+    return trigger;
+  }
+
+  public void setTrigger(String trigger) {
     this.trigger = trigger;
-    this.userAgent = userAgent;
+  }
+
+  public String getUa() {
+    return ua;
+  }
+
+  public void setUa(String ua) {
+    this.ua = ua;
+  }
+
+  public When getWhen() {
+    return when;
+  }
+
+  public void setWhen(When when) {
+    this.when = when;
   }
 }

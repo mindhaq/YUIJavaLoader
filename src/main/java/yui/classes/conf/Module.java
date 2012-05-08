@@ -1,9 +1,6 @@
 package yui.classes.conf;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class Module {
@@ -19,9 +16,13 @@ public class Module {
 
   private boolean langPack = false;
 
+  private boolean intl = false;
+
   private Condition condition;
 
   private final Set<String> requires = new HashSet<String>();
+
+  private final Set<String> optional = new HashSet<String>();
 
   private final Set<String> supersedes = new HashSet<String>();
 
@@ -31,8 +32,10 @@ public class Module {
 
   private final Set<String> after = new HashSet<String>();
 
-  private final Map<String, Boolean> afterMap = new HashMap<String, Boolean>();
-
+  private Module() {
+    this("", null, "");
+  }
+  
   public Module(String name, ModuleType type, String path) {
     this.name = name;
     this.type = type;
@@ -51,28 +54,28 @@ public class Module {
     return path;
   }
 
-  public Set<String> getRequires() {
+  public Collection<String> getRequires() {
     return requires;
   }
 
-  public Set<String> getSupersedes() {
+  public Collection<String> getOptional() {
+    return optional;
+  }
+
+  public Collection<String> getSupersedes() {
     return supersedes;
   }
 
-  public Set<String> getLang() {
+  public Collection<String> getLang() {
     return lang;
   }
 
-  public Set<String> getUse() {
+  public Collection<String> getUse() {
     return use;
   }
 
-  public Set<String> getAfter() {
+  public Collection<String> getAfter() {
     return after;
-  }
-
-  public Map<String, Boolean> getAfterMap() {
-    return afterMap;
   }
 
   public boolean isExternal() {
@@ -97,6 +100,14 @@ public class Module {
 
   public void setLangPack(boolean langPack) {
     this.langPack = langPack;
+  }
+
+  public boolean isIntl() {
+    return intl;
+  }
+
+  public void setIntl(boolean intl) {
+    this.intl = intl;
   }
 
   public Condition getCondition() {
