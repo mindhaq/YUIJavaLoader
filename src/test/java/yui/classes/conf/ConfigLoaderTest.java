@@ -3,6 +3,9 @@ package yui.classes.conf;
 import org.hamcrest.Matchers;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
+
+import java.util.Map;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -20,7 +23,7 @@ public class ConfigLoaderTest {
       "  \"requires\":[],\n" +
       "  \"_inspected\":true\n" +
       "}";
-    Module module = configLoader.fromJson(basicJsDefinition);
+    Module module = configLoader.moduleFromJson(basicJsDefinition);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("yui-base")));
@@ -40,7 +43,7 @@ public class ConfigLoaderTest {
         "  \"path\":\"autocomplete-base/autocomplete-base-min.js\",\n" +
         "  \"ext\":false\n" +
         "}";
-    Module module = configLoader.fromJson(json);
+    Module module = configLoader.moduleFromJson(json);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("autocomplete-base")));
@@ -63,7 +66,7 @@ public class ConfigLoaderTest {
         "  \"ext\":false,\n" +
         "  \"requires\":[]\n" +
         "}";
-    Module module = configLoader.fromJson(json);
+    Module module = configLoader.moduleFromJson(json);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("autocomplete")));
@@ -89,7 +92,7 @@ public class ConfigLoaderTest {
         "  \"type\":\"js\",\n" +
         "  \"requires\":[]\n" +
         "}";
-    Module module = configLoader.fromJson(json);
+    Module module = configLoader.moduleFromJson(json);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("lang/dial_en")));
@@ -119,7 +122,7 @@ public class ConfigLoaderTest {
         "    \"history-hash\":true\n" +
         "  }\n" +
         "}";
-    Module module = configLoader.fromJson(json);
+    Module module = configLoader.moduleFromJson(json);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("history-hash-ie")));
@@ -145,11 +148,50 @@ public class ConfigLoaderTest {
         "  \"ext\":false,\n" +
         "  \"requires\":[]\n" +
         "}";
-    Module module = configLoader.fromJson(json);
+    Module module = configLoader.moduleFromJson(json);
 
     assertThat(module, is(notNullValue()));
     assertThat(module.getName(), is(equalTo("cssfonts")));
     assertThat(module.getType(), is(equalTo(ModuleType.css)));
     assertThat(module.getPath(), is(equalTo("cssfonts/cssfonts-min.css")));
+  }
+  
+  @Test
+  public void should_load_modulemap_from_config_string() {
+    String json = "{\"yui\":{\n" +
+        "  \"name\":\"yui\",\n" +
+        "  \"type\":\"js\",\n" +
+        "  \"path\":\"yui/yui-min.js\",\n" +
+        "  \"ext\":false,\n" +
+        "  \"requires\":[],\n" +
+        "  \"_inspected\":true\n" +
+        "}, \"yui-base\":{\n" +
+        "  \"name\":\"yui-base\",\n" +
+        "  \"type\":\"js\",\n" +
+        "  \"path\":\"yui-base/yui-base-min.js\",\n" +
+        "  \"ext\":false,\n" +
+        "  \"requires\":[],\n" +
+        "  \"_inspected\":true\n" +
+        "}}";
+    Map<String,Module> moduleMap = configLoader.moduleMapFromJson(json);
+    
+    assertThat(moduleMap, is(notNullValue()));
+    assertThat(moduleMap.size(), is(equalTo(2)));
+    assertThat(moduleMap.get("yui"), is(notNullValue()));
+    assertThat(moduleMap.get("yui-base"), is(notNullValue()));
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void should_throw_for_nonexisting_version() {
+    configLoader.getConfig("1.0");
+  }
+  
+  @Test
+  public void should_load_341_config() {
+    Config config341 = configLoader.getConfig("3.4.1");
+
+    assertThat(config341, is(notNullValue()));
+    assertThat(config341.getModuleCount(), is(equalTo(372)));
+    assertThat(config341.version, is(equalTo("3.4.1")));
   }
 }
