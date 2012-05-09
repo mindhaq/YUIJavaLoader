@@ -1,8 +1,6 @@
 package yui.classes.conf;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Config {
   public final String version;
@@ -31,5 +29,34 @@ public class Config {
   
   public int getModuleCount() {
     return moduleMap.size();
+  }
+
+  public Combo comboFor(boolean loadOptional, String... modules) {
+    Combo combo = new Combo();
+    combo.setLoadOptional(loadOptional);
+
+    addModules(combo, modules);
+
+    return combo;
+  }
+
+  private void addModules(Combo combo, String[] modules) {
+    for (String moduleName : modules) {
+      Module module = getModule(moduleName);
+      if (combo.hasModule(module)) {
+        continue;
+      }
+      
+      addModules(combo, module.getRequires());
+      if (combo.isLoadOptional()) {
+        addModules(combo, module.getOptional());
+      }
+      
+      combo.addModule(module);
+    }
+  }
+
+  private void addModules(Combo combo, Set<String> requires) {
+    addModules(combo, requires.toArray(new String[requires.size()]));
   }
 }

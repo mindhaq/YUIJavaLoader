@@ -54,27 +54,27 @@ public class Module {
     return path;
   }
 
-  public Collection<String> getRequires() {
+  public Set<String> getRequires() {
     return requires;
   }
 
-  public Collection<String> getOptional() {
+  public Set<String> getOptional() {
     return optional;
   }
 
-  public Collection<String> getSupersedes() {
+  public Set<String> getSupersedes() {
     return supersedes;
   }
 
-  public Collection<String> getLang() {
+  public Set<String> getLang() {
     return lang;
   }
 
-  public Collection<String> getUse() {
+  public Set<String> getUse() {
     return use;
   }
 
-  public Collection<String> getAfter() {
+  public Set<String> getAfter() {
     return after;
   }
 
@@ -116,5 +116,10 @@ public class Module {
 
   public void setCondition(Condition condition) {
     this.condition = condition;
+  }
+  
+  @Override
+  public String toString() {
+    return getName();
   }
 }
